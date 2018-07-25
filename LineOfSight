@@ -1,0 +1,154 @@
+using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
+
+public class LineOfSight : MonoBehaviour { // проверяет наличие LoS от игрока к мобам - отрисовывает иконку потери LoS
+    // общая логика- направляет рейкаст по слою фурнитура(там стоят препяствия -слой 8) в сторону цели если в кого то попали значит цель за препятсвием
+    // если нет значит всё ок цель не за препятсвием. 
+   //attached to PlayerMob
+    private CanvasGroup losImageCanvas_1;
+    private CanvasGroup losImageCanvas_2;
+    private CanvasGroup losImageCanvas_3;
+    private CanvasGroup losImageCanvas_4;
+
+    private CanvasGroup disImageCanvas_1;
+    private CanvasGroup disImageCanvas_2;
+    private CanvasGroup disImageCanvas_3;
+    private CanvasGroup disImageCanvas_4;
+
+    private float distance1;
+    private float distance2;
+    private float distance3;
+    private float distance4;
+    
+    private GameObject target1;
+    private GameObject target2;
+    private GameObject target3;
+    private GameObject target4;
+    
+    private Vector3 direction1;
+    private Vector3 direction2;
+    private Vector3 direction3;
+    private Vector3 direction4;
+    
+    private RaycastHit2D hit1;
+    private RaycastHit2D hit2;
+    private RaycastHit2D hit3;
+    private RaycastHit2D hit4;
+    
+    private GameObject playerMob;
+
+   
+
+
+
+    // Use this for initialization
+    void Awake () {
+        losImageCanvas_1 = GameObject.Find("DeBuff_Image(1_4)").GetComponent<CanvasGroup>();
+        losImageCanvas_2 = GameObject.Find("DeBuff_Image(2_4)").GetComponent<CanvasGroup>();
+        losImageCanvas_3 = GameObject.Find("DeBuff_Image(3_4)").GetComponent<CanvasGroup>();
+        losImageCanvas_4 = GameObject.Find("DeBuff_Image(4_4)").GetComponent<CanvasGroup>();
+
+        disImageCanvas_1 = GameObject.Find("HealthBar_Image(1)").GetComponent<CanvasGroup>();
+        disImageCanvas_2 = GameObject.Find("HealthBar_Image(2)").GetComponent<CanvasGroup>();
+        disImageCanvas_3 = GameObject.Find("HealthBar_Image(3)").GetComponent<CanvasGroup>();
+        disImageCanvas_4 = GameObject.Find("HealthBar_Image(4)").GetComponent<CanvasGroup>();
+
+        target1 = GameObject.Find("TankMob");
+        target2 = GameObject.Find("RogueMob");
+        target3 = GameObject.Find("MageMob");
+        target4 = GameObject.Find("HunterMob");
+        playerMob = GameObject.Find("PlayerMob");
+
+    }
+	
+	// Update is called once per frame
+	void Update () {
+        distance1 = Vector2.Distance(playerMob.transform.position, target1.transform.position);// определяет дистанцию между игроком и мобами
+        distance2 = Vector2.Distance(playerMob.transform.position, target2.transform.position);
+        distance3 = Vector2.Distance(playerMob.transform.position, target3.transform.position);
+        distance4 = Vector2.Distance(playerMob.transform.position, target4.transform.position);
+
+        direction1 = (target1.transform.position - playerMob.transform.position).normalized;
+        direction2 = (target2.transform.position - playerMob.transform.position).normalized;
+        direction3 = (target3.transform.position - playerMob.transform.position).normalized;
+        direction4 = (target4.transform.position - playerMob.transform.position).normalized;
+        // Направление это нормализованный вектор чтобы получить направление надо вычесть координату исхода из координаты цели
+        // и нормализовать полученный результат
+        hit1 = Physics2D.Raycast(playerMob.transform.position, direction1, distance1, 1 << 8); // дистанция определяется динамически чтобы небыло "перебоя" и некорректного срабатывания
+        hit2 = Physics2D.Raycast(playerMob.transform.position, direction2, distance2, 1 << 8);
+        hit3 = Physics2D.Raycast(playerMob.transform.position, direction3, distance3, 1 << 8);
+        hit4 = Physics2D.Raycast(playerMob.transform.position, direction4, distance4, 1 << 8);
+        // В layerMask используется абсолютно угрёбищный синтаксис дело в том что интеджер это не тупо номер слоя как мог бы подумать любый нормальный человек
+        // это  бит шифт маска по сути указание где нужно поставить единицу внутри 32битов 
+        // Выглядит это так 1 << 8 - поставить единицу на 8 уровне  а не просто 8- если же например нам нужно использованить несколько слоёв сразу 
+        // то синтаксис выглядит так 1<<8|1<<9 уровни 8 И 9
+        if (hit1 == true)
+        {
+            losImageCanvas_1.alpha = 1f;
+        }
+        else
+        {
+            losImageCanvas_1.alpha = 0f;
+        }
+        if (hit2 == true)
+        {
+            losImageCanvas_2.alpha = 1f;
+        }
+        else
+        {
+            losImageCanvas_2.alpha = 0f;
+        }
+        if (hit3 == true)
+        {
+            losImageCanvas_3.alpha = 1f;
+        }
+        else
+        {
+            losImageCanvas_3.alpha = 0f;
+        }
+        if (hit4 == true)
+        {
+            losImageCanvas_4.alpha = 1f;
+        }
+        else
+        {
+            losImageCanvas_4.alpha = 0f;
+        }
+
+        if (distance1 > 6f)
+        {
+            disImageCanvas_1.alpha = 0.5f;
+        }
+        else
+        {
+            disImageCanvas_1.alpha = 1f;
+        }
+        if (distance2 > 6f)
+        {
+            disImageCanvas_2.alpha = 0.5f;
+        }
+        else
+        {
+            disImageCanvas_2.alpha = 1f;
+        }
+        if (distance3 > 6f)
+        {
+            disImageCanvas_3.alpha = 0.5f;
+        }
+        else
+        {
+            disImageCanvas_3.alpha = 1f;
+        }
+        if (distance4 > 6f)
+        {
+            disImageCanvas_4.alpha = 0.5f;
+        }
+        else
+        {
+            disImageCanvas_4.alpha = 1f;
+        }
+
+
+    }
+}
